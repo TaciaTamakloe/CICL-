@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CICL - Field Reports</title>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- HTML2PDF Library for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary-brown: #5D4037;
+            --primary-green: #2E7D32;
+            --primary-dark: #1B5E20;
+            --light-bg: #F1F8E9;
+            --white: #ffffff;
+            --border-color: #ddd;
+            --text-color: #333;
+            --radius: 8px;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            padding-bottom: 80px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: var(--primary-green);
+            color: var(--white);
+            padding:1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .header-branding { display: flex; align-items: center; gap: 15px; flex: 1; }
+        
+        /* Responsive Logo Styling */
+        .company-logo-container {
+            height: 50px;
+            width: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.2); 
+            padding: 4px;
+            border-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .company-logo-img {
+            max-height: 100%; 
+            max-width: 100%;
+            object-fit: contain;
+        }
+        
+        /* Fallback CSS Logo in case of broken image */
+        .company-logo-text {
+            height: 50px;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: white;
+            line-height: 50px;
+            text-align: center;
+        }
+
+        .header-text h1 { margin: 0; font-size: 1.2rem; letter-spacing: 1px; font-weight: 800; }
+        .header-text p { margin: 0; font-size: 0.7rem; opacity: 0.9; }
+
+        /* --- ONLINE/OFFLINE BADGE --- */
+        #netStatus {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(0,0,0,0.2);
+        }
+        .online { background-color: #e3f2fd; color: #1565c0; }
+        .offline { background-color: #ffebee; color: #c62828; }
+
+        /* --- NAVIGATION --- */
+        nav {
+            background-color: var(--primary-green);
+            padding: 0.5rem 1rem;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .nav-btn {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            padding: 8px 16px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .nav-btn.active {
+            color: white;
+            border-bottom: 3px solid #FFD700;
+        }
+
+        .settings-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* --- LAYOUT --- */
+        .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
+        .hidden { display: none; }
+
+        /* --- COMMON CARD STYLE --- */
+        section, .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--primary-green);
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+
+        label { display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: #555; }
+        
+        input[type="text"], input[type="number"], input[type="tel"], input[type="date"], select, textarea {
+            width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem; background: #fafafa;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary-green); background: var(--white); }
+
+        /* --- OFFICIAL FORM SPECIFIC STYLES (Tables) --- */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 0.9rem; }
+        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f9f9f9; color: var(--primary-brown); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+        .action-btn { background: var(--primary-green); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+        .delete-btn { background: #d32f2f; padding: 4px 8px; font-size: 0.8rem; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        
+        /* Signature Pad */
+        .signature-wrapper { border: 2px dashed #ccc; background: #fff; position: relative; height: 150px; width: 100%; margin-top: 5px; }
+        canvas { display: block; width: 100%; height: 100%; }
+        .clear-sig { position: absolute; top: 5px; right: 5px; background: #757575; color: white; border: none; padding: 4px 8px; font-size: 0.8rem; cursor: pointer; border-radius: 4px; }
+
+        /* --- VISIT TOOL SPECIFIC STYLES (Mobile) --- */
+        .radio-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .radio-option { flex: 1; min-width: 80px; }
+        .radio-option input[type="radio"] { display: none; }
+        .radio-option label {
+            display: block; text-align: center; padding: 8px; background: #eee; border-radius: 6px; cursor: pointer; margin: 0; font-size: 0.85rem; border: 1px solid transparent;
+        }
+        .radio-option input[type="radio"]:checked + label { background: var(--primary-green); color: white; border-color: var(--primary-dark); }
+
+        .rec-builder { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; background: #f9f9f9; padding: 10px; border-radius: 6px; align-items: center; border: 1px solid #eee; }
+        .rec-action { flex: 1; min-width: 80px; }
+        .rec-product-container { flex: 2; min-width: 150px; }
+        .rec-rate { width: 70px; }
+        .rec-btn-delete { background: #ff5252; color: white; border: none; border-radius: 4px; padding: 0 10px; height: 38px; cursor: pointer; }
+        .custom-product-input { display: none; margin-top: 5px; width: 100%; }
+
+        /* --- FOOTER ACTIONS --- */
+        .footer-actions {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--white); padding: 1rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex; gap: 1rem; justify-content: center; z-index: 99;
+        }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; }
+        .btn-primary { background: var(--primary-green); color: white; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-danger { background: #d32f2f; color: white; }
+        .btn-sync { background: #1976D2; color: white; }
+        .btn-pdf { background: #d32f2f; color: white; }
+
+        /* --- STOCK LIST & HISTORY --- */
+        .category-header { background-color: var(--primary-brown); color: white; padding: 10px; margin-top: 20px; border-radius: 4px; }
+        .product-list ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+        .product-list li { background: #fff; border: 1px solid #eee; padding: 8px; border-radius: 4px; font-size: 0.9rem; }
+        
+        .history-item { background: white; padding: 1rem; margin-bottom: 0.8rem; border-radius: var(--radius); box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 5px solid var(--primary-green); display: flex; justify-content: space-between; align-items: center; position: relative; }
+        .history-info h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: var(--text); }
+        .history-info p { margin: 0; font-size: 0.85rem; color: #666; }
+        .history-actions button { margin-left: 5px; padding: 6px 10px; font-size: 0.9rem; }
+        
+        /* Pending Sync Badge */
+        .badge-pending {
+            background-color: #ff9800;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+        .badge-synced {
+            background-color: var(--primary-green);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            margin-left: 5px;
+            vertical-align: middle;
+            display: none;
+        }
+        
+        .empty-state { text-align: center; padding: 3rem; color: #999; }
+        
+        .toolbar { display: flex; gap: 10px; margin-bottom: 20px; justify-content: flex-end; background: white; padding: 10px; border-radius: 8px; }
+
+        /* --- PREVIEW MODAL (REVISED FOR FULL DATA) --- */
+        #visitPreview, #officialPreview {
+            display: none; 
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #f0f0f0;
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .preview-content {
+            background: white;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            border: 1px solid #ddd;
+        }
+
+        .preview-header { text-align: center; margin-bottom: 2rem; border-bottom: 2px solid var(--primary-green); padding-bottom: 1rem; }
+        .preview-logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            min-height: 80px;
+        }
+        .preview-logo-img {
+            max-height: 80px;
+            max-width: 200px;
+            object-fit: contain;
+        }
+        .preview-logo-text {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--primary-green);
+            border: 3px solid var(--primary-green);
+            padding: 10px 20px;
+        }
+        
+        .preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px; }
+        .preview-section { margin-bottom: 20px; page-break-inside: avoid; }
+        .preview-label { font-weight: bold; color: #666; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 5px; display: block; }
+        .preview-value { font-size: 1rem; color: #000; margin-bottom: 5px; line-height: 1.4; }
+        .preview-table { width: 100%; border-collapse: collapse; margin-top: 5px; page-break-inside: avoid; }
+        .preview-table th, .preview-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .preview-table th { background-color: #f9f9f9; color: var(--primary-brown); }
+        
+        .preview-sig-container {
+            display: flex;
+            gap: 40px;
+            margin-top: 30px;
+            justify-content: center;
+            page-break-inside: avoid;
+        }
+        .preview-sig-box {
+            border-top: 1px dashed #999;
+            padding-top: 10px;
+            width: 200px;
+            height: 100px;
+        }
+
+        /* --- MODAL ACTIONS --- */
+        .modal-actions-footer {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: white;
+            padding: 1rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            z-index: 1001;
+        }
+
+        /* --- SETTINGS MODAL --- */
+        #settingsModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
+        .settings-content { background: white; padding: 2rem; border-radius: 8px; max-width: 400px; width: 90%; text-align: center; }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px; font-size: 0.9rem; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 200; }
+        .toast.show { opacity: 1; }
+
+       /* --- PRINT STYLES (ENHANCED - OFFICIAL REPORT ONLY) --- */
+@media print {
+    /* 1. Hide everything by default to ensure a clean slate */
+    body * {
+        visibility: hidden;
+    }
+
+    /* 2. Only show the OFFICIAL preview container and its children */
+    #officialPreview, 
+    #officialPreview * {
+        visibility: visible;
+    }
+
+    /* 3. Hide Visit Preview completely in print */
+    #visitPreview,
+    #visitPreview * {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* 4. Reset Body and Containers */
+    body, html {
+        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        color: black;
+        width: 100%;
+        height: auto !important;
+    }
+
+    /* 5. Position the Preview at the top of the print page */
+    #officialPreview {
+        display: block !important;
+        position: relative;
+        top: 0;
+        left: 0;
+        width: 100% !important;
+        margin: 0;
+        padding: 20px;
+        box-shadow: none !important;
+        overflow: visible !important;
+    }
+
+    /* 6. Force background colors/images */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* 7. Page Break Logic */
+    .preview-section, h2, h3, .preview-table {
+        page-break-inside: avoid;
+    }
+    
+    .preview-content {
+        box-shadow: none;
+        border: none;
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    /* Hide modal actions in print */
+    .modal-actions-footer {
+        display: none !important;
+    }
+}
+            
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-branding">
+            <!-- Logo Container -->
+            <div class="company-logo-container" id="headerLogo">
+                <div class="company-logo-text">CICL</div>
+            </div>
+            <div class="header-text">
+                <h1>CICL</h1>
+                <p>Field Reports & Management</p>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <!-- Settings Button -->
+            <button class="settings-btn" onclick="openSettings()" title="Settings">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+            <!-- Offline/Online Indicator -->
+            <div id="netStatus" class="online">
+                <i class="fa-solid fa-wifi"></i> <span id="netText">Online</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <button class="nav-btn active" onclick="switchTab('official')">Official Report</button>
+        <button class="nav-btn" onclick="switchTab('visit')">Field Visit Tool</button>
+        <button class="nav-btn" onclick="switchTab('catalog')">Product Catalog</button>
+        <button class="nav-btn" onclick="switchTab('saved')">Saved Reports</button>
+    </nav>
+
+    <div class="container">
+
+        <!-- TAB 1: OFFICIAL FIELD REPORT -->
+        <div id="tab-official">
+            <form id="officialForm">
+                <!-- Basic Info -->
+                <div class="card">
+                    <h2>Basic Information</h2>
+                    <div class="form-grid">
+                        <div><label>Date of Visit</label><input type="date" name="date" required=""></div>
+                        <div><label>Team Lead</label><input type="text" name="teamLead" placeholder="Name"></div>
+                        <div><label>Sales Personnel</label><input type="text" name="salesPerson" required=""></div>
+                        <div><label>Name Of Shop</label><input type="text" name="shopName"></div>
+                        <div><label>Community/Village</label><input type="text" name="community" required=""></div>
+                        <div><label>Farmer Group</label><input type="text" name="farmerGroup"></div>
+                    </div>
+                </div>
+
+                <!-- Purpose -->
+                <div class="card">
+                    <h2>Purpose of Visit</h2>
+                    <p style="font-size:0.8rem; color:#666; margin-bottom:5px;">Brief description...</p>
+                    <textarea name="purpose" rows="2" placeholder="Enter purpose..."></textarea>
+                </div>
+
+                <!-- Farmers Engaged -->
+                <div class="card">
+                    <h2>Farmers Engaged</h2>
+                    <table id="farmersTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Contact</th>
+                                <th>Crop</th>
+                                <th>Location</th>
+                                <th>Inputs/Request</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <button type="button" class="action-btn" onclick="addFarmerRow()">+ Add Farmer</button>
+                </div>
+
+                <!-- Products Promoted -->
+                <div class="card">
+                    <h2>Products Promoted</h2>
+                    <table id="productsTable"><thead><tr><th>Product</th><th>Type</th><th>Brand</th><th>Response</th><th></th></tr></thead><tbody></tbody></table>
+                    <button type="button" class="action-btn" onclick="addProductRow()">+ Add Product</button>
+                </div>
+
+                <!-- Demos -->
+                <div class="card">
+                    <h2>Demonstrations / Trainings</h2>
+                    <div class="form-grid">
+                        <div><label>Type</label><select name="demoType"><option value="">Select...</option><option>Demo Plot</option><option>Farmer Training</option><option value="Other">Other</option></select></div>
+                        <div><label>No. of Farmers</label><input type="number" name="demoCount" min="0"></div>
+                    </div>
+                    <label>Topic</label><input type="text" name="demoTopic" style="margin-bottom: 10px;">
+                    <label>Feedback</label><textarea name="demoFeedback" rows="2"></textarea>
+                </div>
+
+                <!-- Observations -->
+                <div class="card">
+                    <h2>Feedback and Observations</h2>
+                    <label>General Feedback</label><textarea name="generalFeedback" rows="2" style="margin-bottom: 15px;"></textarea>
+                    <label>Challenges</label><textarea name="challenges" rows="2" style="margin-bottom: 15px;"></textarea>
+                    <label>Suggested Solution</label><textarea name="solutions" rows="2" style="margin-bottom: 15px;"></textarea>
+                    <label>Future Plan</label><textarea name="futurePlan" rows="2"></textarea>
+                </div>
+
+                <!-- Signatures -->
+                <div class="card">
+                    <h2>Signatures</h2>
+                    <div class="form-grid">
+                        <div><label>Personnel Signature</label><div class="signature-wrapper"><canvas id="sigPad1"></canvas><button type="button" class="clear-sig" onclick="clearCanvas('sigPad1')">Clear</button></div></div>
+                        <div><label>Farmer Signature</label><div class="signature-wrapper"><canvas id="sigPad2"></canvas><button type="button" class="clear-sig" onclick="clearCanvas('sigPad2')">Clear</button></div></div>
+                    </div>
+                </div>
+                
+                <!-- SAVE BUTTON -->
+                <div style="text-align: right; margin-top: 10px;">
+                    <button type="button" class="btn btn-primary" onclick="saveOfficialReport()">Save & Preview Report</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- TAB 2: FIELD VISIT TOOL (MOBILE) -->
+        <div id="tab-visit" class="hidden">
+            <form id="visitForm">
+                <!-- 1. Logistics -->
+                <section>
+                    <h2>1. Visit Details</h2>
+                    <div class="form-group"><label>Farmer Name</label><input type="text" id="v_farmerName" placeholder="Enter full name"></div>
+                    <div class="form-group"><label>Contact</label><input type="tel" id="v_farmerContact" placeholder="024 XXX XXXX"></div>
+                    <div class="form-grid">
+                        <div><label>Date</label><input type="date" id="v_visitDate"></div>
+                        <div><label>Crop Type</label><select id="v_cropType"><option value="">Select Crop</option><option value="Cocoa">Cocoa</option><option value="Maize">Maize</option><option value="Cassava">Cassava</option><option value="Oil Palm">Oil Palm</option><option value="Other">Other</option></select></div>
+                    </div>
+                    <div class="form-group"><label>Location</label><input type="text" id="v_location" placeholder="e.g. North Block, Akosombo"></div>
+                </section>
+
+                <!-- 2. Observations -->
+                <section>
+                    <h2>2. Observations</h2>
+                    <div class="form-group"><label>Growth Stage</label><div class="radio-group">
+                        <div class="radio-option"><input type="radio" name="v_growth" id="g1" value="Seedling"><label for="g1">Seedling</label></div>
+                        <div class="radio-option"><input type="radio" name="v_growth" id="g2" value="Vegetative"><label for="g2">Vegetative</label></div>
+                        <div class="radio-option"><input type="radio" name="v_growth" id="g3" value="Flowering"><label for="g3">Flowering</label></div>
+                        <div class="radio-option"><input type="radio" name="v_growth" id="g4" value="Maturity"><label for="g4">Maturity</label></div>
+                    </div></div>
+                    <div class="form-group"><label>Health</label><div class="radio-group">
+                        <div class="radio-option"><input type="radio" name="v_health" id="h1" value="Good"><label for="h1">Good</label></div>
+                        <div class="radio-option"><input type="radio" name="v_health" id="h2" value="Fair"><label for="h2">Fair</label></div>
+                        <div class="radio-option"><input type="radio" name="v_health" id="h3" value="Poor"><label for="h3">Poor</label></div>
+                    </div></div>
+                    <div class="form-group"><label>Pest / Disease</label><select id="v_pestSelect" onchange="handlePestChange()"><option value="">-- None --</option><option value="Capsids">Capsids</option><option value="Mirids">Mirids</option><option value="Black Pod">Black Pod</option><option value="Swollen Shoot">Swollen Shoot</option><option value="Fall Armyworm">Fall Armyworm</option><option value="Stem Borer">Stem Borer</option><option value="Aphids">Aphids</option><option value="Termites">Termites</option><option value="Other">Other</option></select></div>
+                    <div class="form-group" id="v_otherPestGroup" style="display:none;"><label>Specify Pest</label><input type="text" id="v_otherPestInput"></div>
+                    <div class="form-group"><label>Notes</label><textarea id="v_issues" rows="3"></textarea></div>
+                </section>
+
+                <!-- 3. Recommendations -->
+                <section>
+                    <h2>3. Recommendations</h2>
+                    <div id="v_recContainer"></div>
+                    <button type="button" class="btn btn-secondary" style="width:100%; margin-top:10px;" onclick="addRecRow()">+ Add Recommendation</button>
+                </section>
+
+                <!-- 4. Notes -->
+                <section>
+                    <h2>4. Next Steps</h2>
+                    <div class="form-group"><textarea id="v_nextSteps" rows="3"></textarea></div>
+                </section>
+                
+                 <!-- GENERATE BUTTON -->
+                 <div style="text-align: right; margin-top: 10px;">
+                    <button type="button" class="btn btn-primary" onclick="generateVisitReport()">Generate & Preview Report</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- TAB 3: CATALOG -->
+        <div id="tab-catalog" class="hidden">
+            <div class="product-list" id="stockContainer"></div>
+        </div>
+
+        <!-- TAB 4: SAVED REPORTS -->
+        <div id="tab-saved" class="hidden">
+            <div class="toolbar">
+                <button class="action-btn btn-sync" onclick="SyncService.syncPending()"><i class="fa-solid fa-rotate"></i> Sync Now</button>
+                <button class="action-btn" style="background-color: #0288d1;" onclick="exportReports()">Export JSON</button>
+                <button class="action-btn" style="background-color: #757575;" onclick="document.getElementById('importFile').click()">Import Data</button>
+                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleImport(this)">
+            </div>
+            <div id="savedReportsList"></div>
+            <div id="emptyState" class="empty-state" style="display:none;">
+                <i class="fa-solid fa-file-contract" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                <p>No reports found.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- PREVIEW MODALS (FULL LAYOUT) -->
+    
+    <!-- SETTINGS MODAL -->
+    <div id="settingsModal">
+        <div class="settings-content">
+            <h3 style="margin-top:0;">Settings</h3>
+            <div class="form-group">
+                <label>Upload Company Logo</label>
+                <input type="file" id="logoUpload" accept="image/*">
+                <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">Logo will be displayed in header and reports</p>
+            </div>
+            <button class="btn btn-secondary" onclick="closeSettings()">Close</button>
+        </div>
+    </div>
+
+    <!-- Official Preview -->
+    <div id="officialPreview">
+        <div class="preview-content">
+            <div class="preview-header">
+                <div class="preview-logo-container">
+                    <img id="op_logo" class="preview-logo-img" style="display:none;">
+                    <div id="op_logo_fallback" class="preview-logo-text">CICL</div>
+                </div>
+                <h1>OFFICIAL FIELD REPORT</h1>
+                <p id="op_date"></p>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-label">BASIC INFORMATION</div>
+                <div class="preview-grid">
+                    <div><strong>Date:</strong> <span id="op_dateFull">N/A</span></div>
+                    <div><strong>Team Lead:</strong> <span id="op_teamLead">N/A</span></div>
+                    <div><strong>Sales Person:</strong> <span id="op_salesPerson">N/A</span></div>
+                    <div><strong>Shop Name:</strong> <span id="op_shopName">N/A</span></div>
+                    <div><strong>Community:</strong> <span id="op_community">N/A</span></div>
+                    <div><strong>Farmer Group:</strong> <span id="op_farmerGroup">N/A</span></div>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-label">PURPOSE OF VISIT</div>
+                <div class="preview-value" id="op_purpose">N/A</div>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-label">FARMERS ENGAGED</div>
+                <table class="preview-table" id="op_farmerTable">
+                    <thead><tr><th>Name</th><th>Contact</th><th>Crop</th><th>Location</th><th>Inputs/Request</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-label">PRODUCTS PROMOTED</div>
+                <table class="preview-table" id="op_productTable">
+                    <thead><tr><th>Product</th><th>Type</th><th>Brand</th><th>Response</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-label">DEMONSTRATIONS / TRAININGS</div>
+                <div class="preview-value"><strong>Type:</strong> <span id="op_demoType">N/A</span></div>
+                <div class="preview-value"><strong>No. of Farmers:</strong> <span id="op_demoCount">0</span></div>
+                <div class="preview-value"><strong>Topic:</strong> <span id="op_demoTopic">N/A</span></div>
+                <div class="preview-value"><strong>Feedback:</strong> <span id="op_demoFeedback">N/A</span></div>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-label">FEEDBACK & OBSERVATIONS</div>
+                <div class="preview-value"><strong>General Feedback:</strong> <span id="op_generalFeedback">N/A</span></div>
+                <div class="preview-value"><strong>Challenges:</strong> <span id="op_challenges">N/A</span></div>
+                <div class="preview-value"><strong>Suggested Solutions:</strong> <span id="op_solutions">N/A</span></div>
+                <div class="preview-value"><strong>Future Plan:</strong> <span id="op_futurePlan">N/A</span></div>
+            </div>
+
+            <div class="preview-sig-container">
+                <div>
+                    <div class="preview-label" style="text-align:center;">Personnel Signature</div>
+                    <div class="preview-sig-box"><canvas id="op_sig1"></canvas></div>
+                </div>
+                <div>
+                    <div class="preview-label" style="text-align:center;">Farmer Signature</div>
+                    <div class="preview-sig-box"><canvas id="op_sig2"></canvas></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal Actions Footer -->
+        <div class="modal-actions-footer">
+            <button class="btn btn-secondary" onclick="window.print()">Print</button>
+            <button class="btn btn-pdf" onclick="exportToPDF('official')"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
+            <button class="btn btn-secondary" onclick="closePreview()">Back to Form</button>
+        </div>
+    </div>
+
+    <!-- Visit Preview -->
+    <div id="visitPreview">
+        <div class="preview-content">
+            <div class="preview-header">
+                <div class="preview-logo-container">
+                    <img id="vp_logo" class="preview-logo-img" style="display:none;">
+                    <div id="vp_logo_fallback" class="preview-logo-text">CICL</div>
+                </div>
+                <h1>FIELD VISIT REPORT</h1>
+                <p id="vp_date"></p>
+            </div>
+
+            <div class="preview-grid">
+                <div class="preview-section" style="border-right: 1px solid #eee;">
+                    <div class="preview-label">FARMER DETAILS</div>
+                    <div class="preview-value"><strong>Name:</strong> <span id="vp_farmer"></span></div>
+                    <div class="preview-value"><strong>Contact:</strong> <span id="vp_contact"></span></div>
+                    <div class="preview-value"><strong>Location:</strong> <span id="vp_loc"></span></div>
+                    <div class="preview-value"><strong>Crop Type:</strong> <span id="vp_crop"></span></div>
+                    <div class="preview-value"><strong>Visit Date:</strong> <span id="vp_visitDate"></span></div>
+                </div>
+                <div class="preview-section">
+                    <div class="preview-label">FIELD OBSERVATIONS</div>
+                    <div class="preview-value"><strong>Growth Stage:</strong> <span id="vp_growth"></span></div>
+                    <div class="preview-value"><strong>Health Status:</strong> <span id="vp_health"></span></div>
+                    <div class="preview-value"><strong>Pest/Disease:</strong> <span id="vp_pest"></span></div>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-label">FIELD NOTES</div>
+                <div class="preview-value" id="vp_issues"></div>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-label">RECOMMENDATIONS</div>
+                <ul id="vp_recs" style="padding-left:20px;"></ul>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-label">NEXT STEPS</div>
+                <div class="preview-value" id="vp_next"></div>
+            </div>
+        </div>
+        
+        <!-- Modal Actions Footer -->
+        <div class="modal-actions-footer">
+            <button class="btn btn-secondary" onclick="alert('Print is disabled for Field Visit reports. Only Official Reports can be printed.')">Print (Disabled)</button>
+            <button class="btn btn-pdf" onclick="exportToPDF('visit')"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
+            <button class="btn btn-secondary" onclick="closePreview()">Back to Form</button>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Action Saved</div>
+
+    <script>
+        // --- DATA INVENTORY ---
+        const inventory = {
+            "COMMODITIES TRADING": ["Soya Bean Meal", "Yellow Maize"],
+            "FUNGICIDES": ["Banjo Forte", "Champion (Non CODAPEC)", "Fungikill (Non CODAPEC)", "Metalm (72WP)", "Nordox", "Supreme"],
+            "HERBICIDES": ["Alligator 400 EC _ Solevo", "Atraking WP (500G)", "Atraking WP KG", "Blow Out - 1L", "Bravo 41% SL - 1L", "Chemopax (Ametyrne)", "Chemosate(Glyphosate)", "Colam - 1L", "Gallant Super", "Glyphader 480 SL -Solevo", "Herbaking (1L)", "Nicoking - 1L", "Nicoking - 500ML", "Parakin - 1L", "Parakin - 500ML", "Rice Star (Yaa-Taa) 20G Chemico", "Golan", "King Kong", "Wipe Out 360 SL"],
+            "INSECTICIDE": ["Aceta Star", "Actara", "AF.Confidence", "Akate Aduro", "Akate Brafo", "Akate King", "Akate Master", "Blaze", "Buffalo Super", "Confidor", "Dursban (1 LTR)", "Dursban 4E (250 ML)", "FiveStar 250ml", "Furadan", "Galil", "KD215 Plus", "Metrin 250ml", "Nomax (Big Size)", "Nomax (Small Size)", "PAWA", "Punto - 1L", "Trivor", "K-Optimal (CoCoa) - Solevo", "K-Optimal (Vegetables) - Solevo"],
+            "LIQUID FERTILIZERS": ["Banzai", "Begreen Forliar Fertilizer", "Cocoa Agyenkwa", "Cocoa Asontem", "Cocoa Wura", "Forcrop Golden", "Forcrop K", "Green Ok-1.5 Litres", "Greenok-250ML", "Green Ok-3 Litres", "Green Ok- 5 Litres", "ISO NPK 3-1-3", "Kara", "Kelik Potasium", "Sidalco Liquid Fertilizer", "Supergrow"],
+            "MACHETES / KNIVES": ["Crocodile Machetes 410", "Crocodile Machetes 443", "Mob 410 Machetes", "Mob 443 Machetes"],
+            "OTHER INPUTS": ["Tree Prunners"],
+            "SOLID FERTILIZERS": ["Ammonium Sulphate STD 50kg Solevo", "Asasewura", "Haifa Bonus", "NPK 15 15 15", "NPK 23-10-05 (Compound) 50kg Solevo", "NPK (50 Kg)", "Urea (25kg)", "Urea (50 Kg)", "Urea Prilled 50kg - Solevo"],
+            "SPRAYING MACHINES": ["C.P. 15 Hand Sprayer", "Matabi Hand Sprayer", "Pegasus 15 Electric Sprayer", "P.J. 16 Hand Sprayer", "Pulmic Raptor 16 Advance Sprayer", "Solo Hand Sprayer", "Solo Motorized Machine", "Taurus Pulmic Air Motor Sprayer"],
+            "WEEDICIDES": ["Atrazine Liquid", "Atrazine Powder", "Gramostrong/Gramaxone", "Kalach", "Kamaxone", "Kondem", "Paraquart", "SigmaBurn", "Waano Waano"],
+            "WELFARE": ["Wellington Boots - Black", "Wellington Boots - Green"]
+        };
+
+        // --- STORAGE & SYNC SERVICES ---
+        const DB_KEY = 'cicl_reports_v7';
+
+        const StorageService = {
+            save: (report) => {
+                report.id = Date.now();
+                report.synced = false;
+                report.timestamp = new Date().toLocaleString();
+
+                const existing = StorageService.getAll();
+                existing.unshift(report);
+                localStorage.setItem(DB_KEY, JSON.stringify(existing));
+                return report;
+            },
+            getAll: () => {
+                return JSON.parse(localStorage.getItem(DB_KEY) || "[]");
+            },
+            delete: (id) => {
+                const existing = StorageService.getAll();
+                const filtered = existing.filter(r => r.id !== id);
+                localStorage.setItem(DB_KEY, JSON.stringify(filtered));
+            },
+            update: (updatedReport) => {
+                const existing = StorageService.getAll();
+                const index = existing.findIndex(r => r.id === updatedReport.id);
+                if (index !== -1) {
+                    existing[index] = updatedReport;
+                    localStorage.setItem(DB_KEY, JSON.stringify(existing));
+                }
+            },
+            syncReport: (id) => {
+                const existing = StorageService.getAll();
+                const report = existing.find(r => r.id === id);
+                if(report) {
+                    report.synced = true;
+                    StorageService.update(report);
+                }
+            }
+        };
+
+        const SyncService = {
+            syncPending: () => {
+                const reports = StorageService.getAll();
+                const pending = reports.filter(r => !r.synced);
+
+                if(pending.length === 0) {
+                    showToast("Everything is synced.");
+                    return;
+                }
+
+                showToast("Syncing " + pending.length + " reports...");
+
+                setTimeout(() => {
+                    pending.forEach(r => StorageService.syncReport(r.id));
+                    showToast("Sync Complete: " + pending.length + " reports updated.");
+                    loadSavedReports();
+                }, 1500);
+            }
+        };
+
+        // --- LOGO SERVICE ---
+        const LogoService = {
+            get: () => {
+                return localStorage.getItem('cicl_logo') || null;
+            },
+            set: (base64) => {
+                localStorage.setItem('cicl_logo', base64);
+                LogoService.render();
+            },
+            render: () => {
+                const base64 = LogoService.get();
+                const headerLogo = document.getElementById('headerLogo');
+                const vpLogo = document.getElementById('vp_logo');
+                const opLogo = document.getElementById('op_logo');
+                const vpFallback = document.getElementById('vp_logo_fallback');
+                const opFallback = document.getElementById('op_logo_fallback');
+
+                if (base64) {
+                    // Header
+                    headerLogo.innerHTML = `<img src="${base64}" class="company-logo-img">`;
+                    
+                    // Preview logos
+                    if(vpLogo) {
+                        vpLogo.src = base64;
+                        vpLogo.style.display = 'block';
+                    }
+                    if(opLogo) {
+                        opLogo.src = base64;
+                        opLogo.style.display = 'block';
+                    }
+                    
+                    // Hide fallbacks
+                    if(vpFallback) vpFallback.style.display = 'none';
+                    if(opFallback) opFallback.style.display = 'none';
+                } else {
+                    // Header fallback
+                    headerLogo.innerHTML = '<div class="company-logo-text">CICL</div>';
+                    
+                    // Hide preview logos
+                    if(vpLogo) vpLogo.style.display = 'none';
+                    if(opLogo) opLogo.style.display = 'none';
+                    
+                    // Show fallbacks
+                    if(vpFallback) vpFallback.style.display = 'block';
+                    if(opFallback) opFallback.style.display = 'block';
+                }
+            }
+        };
+
+        // --- PDF EXPORT SERVICE (IMPROVED & ENABLED) ---
+        function exportToPDF(type) {
+            // Check if html2pdf is loaded
+            if (typeof html2pdf === 'undefined') {
+                showToast("PDF library not loaded. Please refresh the page.");
+                return false;
+            }
+
+            const previewId = (type === 'visit') ? 'visitPreview' : 'officialPreview';
+            const element = document.getElementById(previewId);
+            const filename = `CICL_${type}_Report_${new Date().toISOString().slice(0,10)}.pdf`;
+
+            showToast("Generating PDF, please wait...");
+
+            // Get the preview content
+            const content = element.querySelector('.preview-content');
+            
+            // PDF options
+            const opt = {
+                margin:       [10, 10, 10, 10],
+                filename:     filename,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { 
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    letterRendering: true,
+                    allowTaint: false,
+                    backgroundColor: '#ffffff'
+                },
+                jsPDF:        { 
+                    unit: 'mm', 
+                    format: 'a4', 
+                    orientation: 'portrait'
+                },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+
+            // Generate and download PDF
+            html2pdf()
+                .set(opt)
+                .from(content)
+                .save()
+                .then(() => {
+                    showToast("PDF Downloaded Successfully!");
+                })
+                .catch((error) => {
+                    console.error('PDF generation error:', error);
+                    showToast("PDF generation failed. Try using Print instead.");
+                });
+            
+            return false;
+        }
+
+        // --- NETWORK STATUS ---
+        function updateNetworkStatus() {
+            const statusBadge = document.getElementById('netStatus');
+            const statusText = document.getElementById('netText');
+            const icon = statusBadge.querySelector('i');
+
+            if(navigator.onLine) {
+                statusBadge.className = 'online';
+                statusText.innerText = "Online";
+                icon.className = "fa-solid fa-wifi";
+            } else {
+                statusBadge.className = 'offline';
+                statusText.innerText = "Offline";
+                icon.className = "fa-solid fa-wifi-slash";
+            }
+        }
+
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+
+        // --- INITIALIZATION ---
+        window.addEventListener('DOMContentLoaded', () => {
+            updateNetworkStatus();
+            LogoService.render();
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('v_visitDate').value = today;
+            document.querySelector('input[name="date"]').value = today;
+
+            addFarmerRow();
+            addProductRow();
+            addRecRow();
+
+            initCanvas('sigPad1');
+            initCanvas('sigPad2');
+            initCanvas('op_sig1');
+            initCanvas('op_sig2');
+
+            renderCatalog();
+            loadSavedReports();
+        });
+
+        // --- NAVIGATION ---
+        function switchTab(tabName) {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.getElementById('tab-official').classList.add('hidden');
+            document.getElementById('tab-visit').classList.add('hidden');
+            document.getElementById('tab-catalog').classList.add('hidden');
+            document.getElementById('tab-saved').classList.add('hidden');
+            
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+
+            if(tabName === 'saved') loadSavedReports();
+        }
+
+        // --- OFFICIAL FORM LOGIC ---
+        function addFarmerRow() {
+            const tbody = document.querySelector('#farmersTable tbody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" name="farmerName[]" placeholder="Name"></td>
+                <td><input type="text" name="farmerContact[]" placeholder="Contact"></td>
+                <td><input type="text" name="farmerCrop[]" placeholder="Crop"></td>
+                <td><input type="text" name="farmerLocation[]" placeholder="Location"></td>
+                <td><input type="text" name="farmerInputs[]" placeholder="Inputs"></td>
+                <td><button type="button" class="delete-btn" onclick="this.closest('tr').remove()">X</button></td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        function addProductRow() {
+            const tbody = document.querySelector('#productsTable tbody');
+            const row = document.createElement('tr');
+            let options = `<option value="">Select...</option>`;
+            for(const [cat, prods] of Object.entries(inventory)) {
+                options += `<optgroup label="${cat}">`;
+                prods.forEach(p => options += `<option value="${p}">${p}</option>`);
+                options += `</optgroup>`;
+            }
+            options += `<option value="Other">Other</option>`;
+
+            row.innerHTML = `
+                <td><select class="p-select" name="productName[]" onchange="handleProductOtherChange(this)">${options}</select></td>
+                <td><input type="text" class="p-type" name="productType[]" readonly></td>
+                <td><input type="text" name="productBrand[]" value="CICL" readonly></td>
+                <td><input type="text" name="productResponse[]"></td>
+                <td><button type="button" class="delete-btn" onclick="this.closest('tr').remove()">X</button></td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        function handleProductOtherChange(selectElement) {
+            const row = selectElement.closest('tr');
+            const typeInput = row.querySelector('.p-type');
+            
+            if (selectElement.value === 'Other') {
+                typeInput.removeAttribute('readonly');
+                typeInput.value = "";
+                typeInput.placeholder = "Specify Type";
+                typeInput.focus();
+            } else if (selectElement.value) {
+                typeInput.setAttribute('readonly', true);
+                const parent = selectElement.options[selectElement.selectedIndex].parentNode.label;
+                typeInput.value = parent || "N/A";
+            } else {
+                typeInput.value = "";
+            }
+        }
+
+        function saveOfficialReport() {
+            const form = document.getElementById('officialForm');
+            const formData = new FormData(form);
+            
+            // Collect farmers data
+            const farmers = [];
+            const farmerNames = form.querySelectorAll('input[name="farmerName[]"]');
+            farmerNames.forEach((input, idx) => {
+                const name = input.value;
+                const contact = form.querySelectorAll('input[name="farmerContact[]"]')[idx].value;
+                const crop = form.querySelectorAll('input[name="farmerCrop[]"]')[idx].value;
+                const location = form.querySelectorAll('input[name="farmerLocation[]"]')[idx].value;
+                const inputs = form.querySelectorAll('input[name="farmerInputs[]"]')[idx].value;
+                
+                if(name || contact || crop || location || inputs) {
+                    farmers.push({ name, contact, crop, location, inputs });
+                }
+            });
+
+            // Collect products data
+            const products = [];
+            const productNames = form.querySelectorAll('select[name="productName[]"]');
+            productNames.forEach((select, idx) => {
+                const name = select.value;
+                const type = form.querySelectorAll('input[name="productType[]"]')[idx].value;
+                const brand = form.querySelectorAll('input[name="productBrand[]"]')[idx].value;
+                const response = form.querySelectorAll('input[name="productResponse[]"]')[idx].value;
+                
+                if(name) {
+                    products.push({ name, type, brand, response });
+                }
+            });
+
+            const data = {
+                type: 'official',
+                date: formData.get('date') || '',
+                teamLead: formData.get('teamLead') || '',
+                salesPerson: formData.get('salesPerson') || '',
+                shopName: formData.get('shopName') || '',
+                community: formData.get('community') || '',
+                farmerGroup: formData.get('farmerGroup') || '',
+                purpose: formData.get('purpose') || '',
+                farmers: farmers,
+                products: products,
+                demoType: formData.get('demoType') || '',
+                demoCount: formData.get('demoCount') || '0',
+                demoTopic: formData.get('demoTopic') || '',
+                demoFeedback: formData.get('demoFeedback') || '',
+                challenges: formData.get('challenges') || '',
+                solutions: formData.get('solutions') || '',
+                generalFeedback: formData.get('generalFeedback') || '',
+                futurePlan: formData.get('futurePlan') || '',
+                signatures: {
+                    sig1: document.getElementById('sigPad1').toDataURL(),
+                    sig2: document.getElementById('sigPad2').toDataURL()
+                }
+            };
+
+            const savedReport = StorageService.save(data);
+            showOfficialPreview(savedReport);
+            showToast("Report Saved Successfully!");
+        }
+
+        function showOfficialPreview(report) {
+            // Update logo
+            LogoService.render();
+            
+            // Basic info
+            document.getElementById('op_date').innerText = report.timestamp;
+            document.getElementById('op_dateFull').innerText = report.date || 'N/A';
+            document.getElementById('op_teamLead').innerText = report.teamLead || 'N/A';
+            document.getElementById('op_salesPerson').innerText = report.salesPerson || 'N/A';
+            document.getElementById('op_shopName').innerText = report.shopName || 'N/A';
+            document.getElementById('op_community').innerText = report.community || 'N/A';
+            document.getElementById('op_farmerGroup').innerText = report.farmerGroup || 'N/A';
+            document.getElementById('op_purpose').innerText = report.purpose || 'N/A';
+            
+            // Farmers table
+            const fTable = document.getElementById('op_farmerTable').querySelector('tbody');
+            fTable.innerHTML = '';
+            if(report.farmers && report.farmers.length > 0) {
+                report.farmers.forEach(f => {
+                    fTable.innerHTML += `<tr>
+                        <td>${f.name || ''}</td>
+                        <td>${f.contact || ''}</td>
+                        <td>${f.crop || ''}</td>
+                        <td>${f.location || ''}</td>
+                        <td>${f.inputs || ''}</td>
+                    </tr>`;
+                });
+            } else {
+                fTable.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#999;">No farmers recorded</td></tr>';
+            }
+
+            // Products table
+            const pTable = document.getElementById('op_productTable').querySelector('tbody');
+            pTable.innerHTML = '';
+            if(report.products && report.products.length > 0) {
+                report.products.forEach(p => {
+                    pTable.innerHTML += `<tr>
+                        <td>${p.name || ''}</td>
+                        <td>${p.type || ''}</td>
+                        <td>${p.brand || ''}</td>
+                        <td>${p.response || ''}</td>
+                    </tr>`;
+                });
+            } else {
+                pTable.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#999;">No products recorded</td></tr>';
+            }
+
+            // Demo/Training info
+            document.getElementById('op_demoType').innerText = report.demoType || 'N/A';
+            document.getElementById('op_demoCount').innerText = report.demoCount || '0';
+            document.getElementById('op_demoTopic').innerText = report.demoTopic || 'N/A';
+            document.getElementById('op_demoFeedback').innerText = report.demoFeedback || 'N/A';
+            
+            // Feedback
+            document.getElementById('op_generalFeedback').innerText = report.generalFeedback || 'N/A';
+            document.getElementById('op_challenges').innerText = report.challenges || 'N/A';
+            document.getElementById('op_solutions').innerText = report.solutions || 'N/A';
+            document.getElementById('op_futurePlan').innerText = report.futurePlan || 'N/A';
+
+            // Signatures
+            const s1 = document.getElementById('op_sig1');
+            const ctx1 = s1.getContext('2d');
+            ctx1.clearRect(0,0,s1.width,s1.height);
+            if(report.signatures && report.signatures.sig1) {
+                const img = new Image();
+                img.onload = function() { 
+                    ctx1.drawImage(img, 0, 0, s1.width, s1.height); 
+                };
+                img.src = report.signatures.sig1;
+            }
+
+            const s2 = document.getElementById('op_sig2');
+            const ctx2 = s2.getContext('2d');
+            ctx2.clearRect(0,0,s2.width,s2.height);
+            if(report.signatures && report.signatures.sig2) {
+                const img = new Image();
+                img.onload = function() { 
+                    ctx2.drawImage(img, 0, 0, s2.width, s2.height); 
+                };
+                img.src = report.signatures.sig2;
+            }
+
+            // Show preview
+            document.getElementById('tab-official').classList.add('hidden');
+            document.getElementById('officialPreview').style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+
+        // --- VISIT TOOL LOGIC ---
+        function handlePestChange() {
+            const val = document.getElementById('v_pestSelect').value;
+            document.getElementById('v_otherPestGroup').style.display = (val === 'Other') ? 'block' : 'none';
+        }
+
+        function getVisitOptionsHTML() {
+            let html = `<option value="">-- Select Product --</option>`;
+            for(const [cat, prods] of Object.entries(inventory)) {
+                html += `<optgroup label="${cat}">`;
+                prods.forEach(p => html += `<option value="${p}">${p}</option>`);
+                html += `</optgroup>`;
+            }
+            html += `<option value="Other">Other</option>`;
+            return html;
+        }
+
+        function addRecRow() {
+            const container = document.getElementById('v_recContainer');
+            const id = 'r' + Date.now();
+            const div = document.createElement('div');
+            div.className = 'rec-builder'; div.id = id;
+            div.innerHTML = `
+                <input type="text" class="rec-action" placeholder="Action">
+                <div class="rec-product-container">
+                    <select onchange="toggleRecCustom('${id}')" style="width:100%; padding:8px;">${getVisitOptionsHTML()}</select>
+                    <input type="text" id="${id}_c" class="custom-product-input" placeholder="Product Name">
+                </div>
+                <input type="text" class="rec-rate" placeholder="Rate">
+                <button class="rec-btn-delete" onclick="document.getElementById('${id}').remove()">X</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function toggleRecCustom(id) {
+            const row = document.getElementById(id);
+            const val = row.querySelector('select').value;
+            row.querySelector('.custom-product-input').style.display = (val === 'Other') ? 'block' : 'none';
+        }
+
+        function generateVisitReport() {
+            const farmer = document.getElementById('v_farmerName').value || "N/A";
+            const contact = document.getElementById('v_farmerContact').value || "N/A";
+            const loc = document.getElementById('v_location').value || "N/A";
+            const crop = document.getElementById('v_cropType').value || "N/A";
+            const visitDate = document.getElementById('v_visitDate').value || "N/A";
+            const growth = document.querySelector('input[name="v_growth"]:checked')?.value || "N/A";
+            const health = document.querySelector('input[name="v_health"]:checked')?.value || "N/A";
+            
+            let pest = document.getElementById('v_pestSelect').value || "None";
+            if(pest === 'Other') pest = document.getElementById('v_otherPestInput').value || "Other";
+            
+            const issues = document.getElementById('v_issues').value || "None noted";
+            const next = document.getElementById('v_nextSteps').value || "None specified";
+
+            const recs = [];
+            document.querySelectorAll('.rec-builder').forEach(r => {
+                const a = r.querySelector('.rec-action').value;
+                const s = r.querySelector('select').value;
+                const rt = r.querySelector('.rec-rate').value;
+                let c = "";
+                if(s === 'Other') c = r.querySelector('.custom-product-input').value;
+                if(a || s) recs.push({a, s, rt, c});
+            });
+
+            const data = {
+                type: 'visit',
+                farmer, contact, loc, crop, visitDate, growth, health, pest, issues, next, recs
+            };
+
+            const savedReport = StorageService.save(data);
+            showVisitPreview(savedReport);
+            showToast("Report Saved Successfully!");
+        }
+
+        function showVisitPreview(report) {
+            // Update logo
+            LogoService.render();
+            
+            document.getElementById('vp_date').innerText = report.timestamp;
+            document.getElementById('vp_farmer').innerText = report.farmer;
+            document.getElementById('vp_contact').innerText = report.contact;
+            document.getElementById('vp_loc').innerText = report.loc;
+            document.getElementById('vp_crop').innerText = report.crop;
+            document.getElementById('vp_visitDate').innerText = report.visitDate;
+            document.getElementById('vp_growth').innerText = report.growth;
+            document.getElementById('vp_health').innerText = report.health;
+            document.getElementById('vp_pest').innerText = report.pest;
+            document.getElementById('vp_issues').innerText = report.issues;
+            document.getElementById('vp_next').innerText = report.next;
+            
+            const ul = document.getElementById('vp_recs'); 
+            ul.innerHTML='';
+            if(report.recs && report.recs.length > 0) {
+                report.recs.forEach(x => {
+                    const p = (x.s === 'Other') ? x.c : x.s;
+                    ul.innerHTML += `<li><strong>${x.a}</strong> - ${p} ${x.rt ? `(${x.rt})` : ''}</li>`;
+                });
+            } else {
+                ul.innerHTML = '<li style="color:#999;">No recommendations recorded</li>';
+            }
+
+            // Show preview
+            document.getElementById('tab-visit').classList.add('hidden');
+            document.getElementById('visitPreview').style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+
+        // --- SHARED LOGIC ---
+
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        // Handle Logo Upload
+        document.getElementById('logoUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    LogoService.set(event.target.result);
+                    showToast("Logo updated successfully!");
+                    closeSettings();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function closePreview() {
+            document.getElementById('visitPreview').style.display = 'none';
+            document.getElementById('officialPreview').style.display = 'none';
+            document.getElementById('tab-visit').classList.remove('hidden');
+            document.getElementById('tab-official').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function loadSavedReports() {
+            const list = document.getElementById('savedReportsList');
+            const empty = document.getElementById('emptyState');
+            const reports = StorageService.getAll();
+            
+            list.innerHTML = '';
+            if(reports.length === 0) { 
+                empty.style.display = 'block'; 
+                return; 
+            }
+            empty.style.display = 'none';
+
+            reports.forEach(r => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                
+                let sub = r.timestamp + " | " + (r.community || r.loc || 'No Location');
+                let title = (r.type === 'visit') ? `${r.farmer} (${r.crop})` : `${r.community || 'Report'}`;
+                let label = (r.type === 'visit') ? 'VISIT' : 'OFFICIAL';
+                let color = (r.type === 'visit') ? '#2e7d32' : '#5D4037';
+
+                let syncBadge = '';
+                if(!r.synced) {
+                    syncBadge = `<span class="badge-pending">Pending Sync</span>`;
+                }
+
+                div.innerHTML = `
+                    <div class="history-info" onclick="viewReport(${r.id})" style="cursor:pointer; border-left:4px solid ${color}; padding-left:10px; flex:1;">
+                        <h3>${title} <span style="font-size:0.7rem; background:${color}; color:white; padding:2px 5px; border-radius:4px;">${label}</span> ${syncBadge}</h3>
+                        <p>${sub}</p>
+                    </div>
+                    <div class="history-actions">
+                        <button class="delete-btn" onclick="deleteReport(${r.id})"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function viewReport(id) {
+            const reports = StorageService.getAll();
+            const r = reports.find(x => x.id === id);
+            if(!r) return;
+
+            if(r.type === 'visit') {
+                showVisitPreview(r);
+            } else {
+                showOfficialPreview(r);
+            }
+        }
+
+        function deleteReport(id) {
+            if(confirm("Delete this report? This action cannot be undone.")) {
+                StorageService.delete(id);
+                loadSavedReports();
+                showToast("Report Deleted");
+            }
+        }
+
+        function exportReports() {
+            const reports = StorageService.getAll();
+            if(reports.length === 0) {
+                showToast("No reports to export");
+                return;
+            }
+            
+            const blob = new Blob([JSON.stringify(reports, null, 2)], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; 
+            a.download = `CICL_Reports_Backup_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            showToast("Export Complete");
+        }
+
+        function handleImport(input) {
+            const f = input.files[0];
+            if(!f) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imp = JSON.parse(e.target.result);
+                    if(!Array.isArray(imp)) throw "Invalid format";
+                    
+                    const cur = StorageService.getAll();
+                    const merged = [...imp, ...cur];
+                    localStorage.setItem(DB_KEY, JSON.stringify(merged));
+                    
+                    showToast("Imported " + imp.length + " reports");
+                    input.value = '';
+                    loadSavedReports();
+                } catch(err) { 
+                    showToast("Invalid File Format"); 
+                }
+            };
+            reader.readAsText(f);
+        }
+
+        function renderCatalog() {
+            const c = document.getElementById('stockContainer');
+            let html = '';
+            for(const [cat, prods] of Object.entries(inventory)) {
+                html += `<div class="category-header">${cat}</div><div class="product-list"><ul>`;
+                prods.forEach(p => html += `<li>${p}</li>`);
+                html += `</ul></div>`;
+            }
+            c.innerHTML = html;
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast'); 
+            t.innerText = msg; 
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // --- CANVAS ---
+        function initCanvas(id) {
+            const cv = document.getElementById(id);
+            if(!cv) return;
+            
+            const cx = cv.getContext('2d');
+            cv.width = cv.offsetWidth;
+            cv.height = cv.offsetHeight;
+            
+            let draw = false;
+            
+            const getPos = (e) => { 
+                const r = cv.getBoundingClientRect(); 
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                return {
+                    x: (clientX - r.left) * (cv.width / r.width),
+                    y: (clientY - r.top) * (cv.height / r.height)
+                };
+            };
+            
+            const start = (e) => { 
+                draw = true; 
+                const pos = getPos(e);
+                cx.beginPath(); 
+                cx.moveTo(pos.x, pos.y); 
+            };
+            
+            const move = (e) => { 
+                if(!draw) return; 
+                const p = getPos(e); 
+                cx.lineTo(p.x, p.y); 
+                cx.strokeStyle = '#000';
+                cx.lineWidth = 2;
+                cx.lineCap = 'round';
+                cx.stroke(); 
+            };
+            
+            const end = () => { draw = false; };
+            
+            cv.addEventListener('mousedown', start); 
+            cv.addEventListener('mousemove', move); 
+            cv.addEventListener('mouseup', end);
+            cv.addEventListener('touchstart', (e) => { e.preventDefault(); start(e); });
+            cv.addEventListener('touchmove', (e) => { e.preventDefault(); move(e); });
+            cv.addEventListener('touchend', end);
+        }
+        
+        function clearCanvas(id) {
+            const c = document.getElementById(id); 
+            if(!c) return; 
+            const ctx = c.getContext('2d'); 
+            ctx.clearRect(0, 0, c.width, c.height);
+        }
+
+    </script>
+</body>
+</html>
